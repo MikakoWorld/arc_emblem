@@ -697,6 +697,10 @@
         svg.removeAttribute("width");
         svg.removeAttribute("height");
         svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+        const [viewX, viewY, viewWidth, viewHeight] = svg
+          .getAttribute("viewBox")
+          .split(/\s+/)
+          .map(Number);
 
         const style = doc.createElementNS("http://www.w3.org/2000/svg", "style");
         style.textContent = "path,polygon,rect,circle,ellipse,line,polyline{fill:var(--emblem-fill);stroke:var(--emblem-stroke,none)}";
@@ -712,16 +716,17 @@
               : doc.createElementNS("http://www.w3.org/2000/svg", "radialGradient");
 
           gradient.setAttribute("id", "emblemGradient");
+          gradient.setAttribute("gradientUnits", "userSpaceOnUse");
           if (state.mode === "linear") {
-            const points = angleToPoints(state.gradientAngle);
+            const points = angleToPoints(state.gradientAngle, { viewX, viewY, viewWidth, viewHeight });
             gradient.setAttribute("x1", points.x1);
             gradient.setAttribute("y1", points.y1);
             gradient.setAttribute("x2", points.x2);
             gradient.setAttribute("y2", points.y2);
           } else {
-            gradient.setAttribute("cx", "50%");
-            gradient.setAttribute("cy", "46%");
-            gradient.setAttribute("r", "68%");
+            gradient.setAttribute("cx", round(viewX + viewWidth / 2));
+            gradient.setAttribute("cy", round(viewY + viewHeight * 0.46));
+            gradient.setAttribute("r", round(Math.max(viewWidth, viewHeight) * 0.68));
           }
 
           const start = doc.createElementNS("http://www.w3.org/2000/svg", "stop");
@@ -741,15 +746,19 @@
         return new XMLSerializer().serializeToString(svg);
       }
 
-      function angleToPoints(angle) {
+      function angleToPoints(angle, box) {
         const radians = ((angle - 90) * Math.PI) / 180;
         const x = Math.cos(radians);
         const y = Math.sin(radians);
+        const centerX = box.viewX + box.viewWidth / 2;
+        const centerY = box.viewY + box.viewHeight / 2;
+        const radius = Math.sqrt(box.viewWidth ** 2 + box.viewHeight ** 2) / 2;
+
         return {
-          x1: `${50 - x * 50}%`,
-          y1: `${50 - y * 50}%`,
-          x2: `${50 + x * 50}%`,
-          y2: `${50 + y * 50}%`,
+          x1: round(centerX - x * radius),
+          y1: round(centerY - y * radius),
+          x2: round(centerX + x * radius),
+          y2: round(centerY + y * radius),
         };
       }
 
