@@ -5,7 +5,7 @@
 ## 公開URL
 
 - Cloudflare Pages: `https://arc-emblem.pages.dev`
-- GitHub Pages: 廃止
+- GitHub Pages: 廃止（リポジトリ`gh-pages`に残しているが今後触らない）
 
 ## 主な機能
 
