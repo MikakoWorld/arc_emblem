@@ -34,6 +34,10 @@
           sans-serif;
       }
 
+      body.modal-open {
+        overflow: hidden;
+      }
+
       button,
       input,
       select {
@@ -198,6 +202,10 @@
         gap: 10px;
       }
 
+      .actions .wide {
+        grid-column: 1 / -1;
+      }
+
       .button {
         display: inline-grid;
         min-height: 44px;
@@ -276,6 +284,75 @@
 
       .error {
         color: #b42318;
+      }
+
+      .ios-save-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 30;
+        display: flex;
+        align-items: stretch;
+        justify-content: center;
+        padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+        background: rgb(13 18 26 / 0.78);
+      }
+
+      .ios-save-modal[hidden] {
+        display: none;
+      }
+
+      .ios-save-modal-inner {
+        display: flex;
+        flex-direction: column;
+        width: min(100vw, 920px);
+        min-height: 100vh;
+        padding: 14px;
+        color: #ffffff;
+        background: #101418;
+      }
+
+      .ios-save-head {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .ios-save-head h2 {
+        margin: 0;
+        font-size: 1rem;
+        letter-spacing: 0;
+      }
+
+      .ios-save-close {
+        min-height: 40px;
+        padding: 0 14px;
+        border-radius: 8px;
+        color: #ffffff;
+        background: rgb(255 255 255 / 0.16);
+        font-weight: 800;
+      }
+
+      .ios-save-modal p {
+        margin: 10px 0 12px;
+        color: #d9dee7;
+        font-size: 0.9rem;
+      }
+
+      #iosSaveImage {
+        display: block;
+        width: 100%;
+        min-height: 0;
+        flex: 1;
+        object-fit: contain;
+        border: 1px solid rgb(255 255 255 / 0.18);
+        border-radius: 8px;
+        background:
+          linear-gradient(45deg, rgb(255 255 255 / 0.08) 25%, transparent 25%) 0 0 / 18px 18px,
+          linear-gradient(-45deg, rgb(255 255 255 / 0.08) 25%, transparent 25%) 0 0 / 18px 18px,
+          linear-gradient(45deg, transparent 75%, rgb(255 255 255 / 0.08) 75%) 0 0 / 18px 18px,
+          linear-gradient(-45deg, transparent 75%, rgb(255 255 255 / 0.08) 75%) 0 0 / 18px 18px,
+          #050608;
       }
 
       :focus-visible {
@@ -415,8 +492,9 @@
         </fieldset>
 
         <div class="actions">
-          <button id="reset" class="button secondary" type="button">リセット</button>
           <button id="download" class="button primary" type="button">PNG保存</button>
+          <button id="iosSave" class="button secondary" type="button">iPhone保存</button>
+          <button id="reset" class="button secondary wide" type="button">リセット</button>
         </div>
       </aside>
 
@@ -432,6 +510,17 @@
         </div>
       </section>
     </main>
+
+    <div id="iosSaveModal" class="ios-save-modal" role="dialog" aria-modal="true" aria-labelledby="iosSaveTitle" hidden>
+      <div class="ios-save-modal-inner">
+        <div class="ios-save-head">
+          <h2 id="iosSaveTitle">iPhone 保存用画像</h2>
+          <button id="iosSaveClose" class="ios-save-close" type="button">閉じる</button>
+        </div>
+        <p>画像を長押しして写真アプリに保存できます。</p>
+        <img id="iosSaveImage" alt="保存用PNG" />
+      </div>
+    </div>
 
     <script>
       const sizeMap = {
@@ -472,6 +561,10 @@
         paddingValue: document.querySelector("#paddingValue"),
         reset: document.querySelector("#reset"),
         download: document.querySelector("#download"),
+        iosSave: document.querySelector("#iosSave"),
+        iosSaveModal: document.querySelector("#iosSaveModal"),
+        iosSaveClose: document.querySelector("#iosSaveClose"),
+        iosSaveImage: document.querySelector("#iosSaveImage"),
       };
 
       const preview = document.querySelector("#preview");
@@ -497,6 +590,7 @@
           status.textContent = "base.svgを読み込めませんでした。ローカルサーバーから開いてください。";
           status.classList.add("error");
           controls.download.disabled = true;
+          controls.iosSave.disabled = true;
           console.error(error);
         }
       }
@@ -538,6 +632,14 @@
         });
 
         controls.download.addEventListener("click", downloadPng);
+        controls.iosSave.addEventListener("click", showIOSSaveImage);
+        controls.iosSaveClose.addEventListener("click", closeIOSSaveModal);
+        controls.iosSaveModal.addEventListener("click", (event) => {
+          if (event.target === controls.iosSaveModal) closeIOSSaveModal();
+        });
+        window.addEventListener("keydown", (event) => {
+          if (event.key === "Escape") closeIOSSaveModal();
+        });
       }
 
       function getState() {
@@ -570,7 +672,7 @@
 
         frame.style.setProperty("--preview-ratio", `${ratioParts[0]} / ${ratioParts[1]}`);
         frame.style.setProperty("--preview-width", state.ratio === "16:9" ? "980px" : "760px");
-        frame.style.background = rgba(state.backgroundColor, state.backgroundAlpha);
+        frame.style.background = previewBackground(state.backgroundColor, state.backgroundAlpha);
         preview.style.width = `${100 - state.padding * 2}%`;
 
         setPreviewSource(buildColoredSvg(state));
@@ -656,6 +758,33 @@
 
       async function downloadPng() {
         const state = getState();
+        const canvas = await buildExportCanvas(state);
+
+        const link = document.createElement("a");
+        link.download = getFileName(state);
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      }
+
+      async function showIOSSaveImage() {
+        try {
+          const state = getState();
+          const canvas = await buildExportCanvas(state);
+          controls.iosSaveImage.src = canvas.toDataURL("image/png");
+          controls.iosSaveModal.hidden = false;
+          document.body.classList.add("modal-open");
+        } catch (error) {
+          console.error(error);
+          alert("PNG化に失敗しました。");
+        }
+      }
+
+      function closeIOSSaveModal() {
+        controls.iosSaveModal.hidden = true;
+        document.body.classList.remove("modal-open");
+      }
+
+      async function buildExportCanvas(state) {
         const [width, height] = sizeMap[state.size][state.ratio];
         const svgText = buildColoredSvg(state);
         const svgUrl = URL.createObjectURL(new Blob([svgText], { type: "image/svg+xml;charset=utf-8" }));
@@ -682,14 +811,14 @@
           const y = (height - drawHeight) / 2;
 
           ctx.drawImage(image, x, y, drawWidth, drawHeight);
-
-          const link = document.createElement("a");
-          link.download = `aegis-arc-emblem-${state.ratio.replace(":", "x")}-${state.size}.png`;
-          link.href = canvas.toDataURL("image/png");
-          link.click();
+          return canvas;
         } finally {
           URL.revokeObjectURL(svgUrl);
         }
+      }
+
+      function getFileName(state) {
+        return `aegis-arc-emblem-${state.ratio.replace(":", "x")}-${state.size}.png`;
       }
 
       function loadImage(src) {
@@ -707,6 +836,18 @@
         const g = parseInt(value.slice(2, 4), 16);
         const b = parseInt(value.slice(4, 6), 16);
         return `rgb(${r} ${g} ${b} / ${alpha})`;
+      }
+
+      function previewBackground(hex, alpha) {
+        const overlay = rgba(hex, alpha);
+        return `
+          linear-gradient(${overlay}, ${overlay}),
+          linear-gradient(45deg, rgb(88 94 105 / 0.24) 25%, transparent 25%) 0 0 / 18px 18px,
+          linear-gradient(-45deg, rgb(88 94 105 / 0.24) 25%, transparent 25%) 0 0 / 18px 18px,
+          linear-gradient(45deg, transparent 75%, rgb(88 94 105 / 0.24) 75%) 0 0 / 18px 18px,
+          linear-gradient(-45deg, transparent 75%, rgb(88 94 105 / 0.24) 75%) 0 0 / 18px 18px,
+          #f7f8fa
+        `;
       }
     </script>
   </body>
