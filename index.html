@@ -100,6 +100,38 @@
         font-weight: 700;
       }
 
+      .accordion-toggle {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        min-height: 30px;
+        padding: 0;
+        color: inherit;
+        background: transparent;
+        font-weight: 800;
+        text-align: left;
+      }
+
+      .accordion-icon {
+        display: none;
+        width: 24px;
+        height: 24px;
+        place-items: center;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        color: #475467;
+        background: #ffffff;
+        font-size: 1rem;
+        line-height: 1;
+      }
+
+      .accordion-panel {
+        display: grid;
+        gap: 12px;
+      }
+
       label,
       .label {
         display: grid;
@@ -192,8 +224,33 @@
         gap: 12px;
       }
 
-      .gradient-controls[hidden] {
+      .gradient-controls[hidden],
+      .effect-controls[hidden] {
         display: none;
+      }
+
+      .toggle-line {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        color: #344054;
+        font-size: 0.9rem;
+        font-weight: 700;
+      }
+
+      .toggle-line input {
+        width: 18px;
+        height: 18px;
+        accent-color: var(--accent);
+      }
+
+      .effect-controls {
+        display: grid;
+        gap: 12px;
+        padding: 12px;
+        border: 1px solid #e4e7ec;
+        border-radius: 8px;
+        background: #ffffff;
       }
 
       .actions {
@@ -389,6 +446,19 @@
         .segmented {
           grid-template-columns: 1fr;
         }
+
+        .accordion legend {
+          width: 100%;
+          padding: 0;
+        }
+
+        .accordion-icon {
+          display: grid;
+        }
+
+        .accordion[data-collapsed="true"] .accordion-panel {
+          display: none;
+        }
       }
     </style>
   </head>
@@ -400,95 +470,178 @@
           <p class="meta">SVGカラー、背景、書き出しサイズを調整できます。</p>
         </div>
 
-        <fieldset>
-          <legend>エンブレム</legend>
-          <div class="label">
-            カラー方式
-            <div class="segmented" role="radiogroup" aria-label="カラー方式">
+        <fieldset class="accordion" data-collapsed="true">
+          <legend>
+            <button class="accordion-toggle" type="button" aria-expanded="false">
+              <span>エンブレム</span>
+              <span class="accordion-icon" aria-hidden="true">+</span>
+            </button>
+          </legend>
+          <div class="accordion-panel">
+            <div class="label">
+              カラー方式
+              <div class="segmented" role="radiogroup" aria-label="カラー方式">
+                <label>
+                  <input type="radio" name="colorMode" value="solid" checked />
+                  <span>単色</span>
+                </label>
+                <label>
+                  <input type="radio" name="colorMode" value="linear" />
+                  <span>線形</span>
+                </label>
+                <label>
+                  <input type="radio" name="colorMode" value="radial" />
+                  <span>円形</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="swatch-line">
+              <input id="solidColor" type="color" value="#111827" aria-label="単色カラー" />
               <label>
-                <input type="radio" name="colorMode" value="solid" checked />
-                <span>単色</span>
+                単色カラー
+                <select id="preset">
+                  <option value="custom">カスタム</option>
+                  <option value="#111827">墨黒</option>
+                  <option value="#0f766e">翡翠</option>
+                  <option value="#b45309">金銅</option>
+                  <option value="#be123c">深紅</option>
+                  <option value="#2563eb">蒼</option>
+                </select>
               </label>
-              <label>
-                <input type="radio" name="colorMode" value="linear" />
-                <span>線形</span>
-              </label>
-              <label>
-                <input type="radio" name="colorMode" value="radial" />
-                <span>円形</span>
+            </div>
+
+            <div id="gradientControls" class="gradient-controls" hidden>
+              <div class="row">
+                <label>
+                  グラデーション始点
+                  <input id="gradientStart" type="color" value="#0f766e" />
+                </label>
+                <label>
+                  グラデーション終点
+                  <input id="gradientEnd" type="color" value="#f59e0b" />
+                </label>
+              </div>
+              <label id="angleControl">
+                角度
+                <input id="gradientAngle" type="range" min="0" max="360" value="35" />
+                <span class="alpha-readout"><span>0°</span><span id="angleValue">35°</span><span>360°</span></span>
               </label>
             </div>
           </div>
+        </fieldset>
 
-          <div class="swatch-line">
-            <input id="solidColor" type="color" value="#111827" aria-label="単色カラー" />
-            <label>
-              単色カラー
-              <select id="preset">
-                <option value="custom">カスタム</option>
-                <option value="#111827">墨黒</option>
-                <option value="#0f766e">翡翠</option>
-                <option value="#b45309">金銅</option>
-                <option value="#be123c">深紅</option>
-                <option value="#2563eb">蒼</option>
-              </select>
-            </label>
-          </div>
-
-          <div id="gradientControls" class="gradient-controls" hidden>
+        <fieldset class="accordion" data-collapsed="true">
+          <legend>
+            <button class="accordion-toggle" type="button" aria-expanded="false">
+              <span>土台</span>
+              <span class="accordion-icon" aria-hidden="true">+</span>
+            </button>
+          </legend>
+          <div class="accordion-panel">
             <div class="row">
               <label>
-                グラデーション始点
-                <input id="gradientStart" type="color" value="#0f766e" />
+                比率
+                <select id="ratio">
+                  <option value="1:1">1:1</option>
+                  <option value="3:4">3:4</option>
+                  <option value="9:16" selected>9:16</option>
+                </select>
               </label>
               <label>
-                グラデーション終点
-                <input id="gradientEnd" type="color" value="#f59e0b" />
+                サイズ
+                <select id="size">
+                  <option value="S">S</option>
+                  <option value="M" selected>M</option>
+                  <option value="L">L</option>
+                  <option value="XL">XL</option>
+                </select>
               </label>
             </div>
-            <label id="angleControl">
-              角度
-              <input id="gradientAngle" type="range" min="0" max="360" value="35" />
-              <span class="alpha-readout"><span>0°</span><span id="angleValue">35°</span><span>360°</span></span>
+
+            <label>
+              背景色
+              <input id="backgroundColor" type="color" value="#f8fafc" />
+            </label>
+            <label>
+              背景の透明度
+              <input id="backgroundAlpha" type="range" min="0" max="100" value="100" />
+              <span class="alpha-readout"><span>透明</span><span id="alphaValue">100%</span><span>不透明</span></span>
+            </label>
+            <label>
+              エンブレム余白
+              <input id="padding" type="range" min="8" max="36" value="18" />
+              <span class="alpha-readout"><span>小</span><span id="paddingValue">18%</span><span>大</span></span>
             </label>
           </div>
         </fieldset>
 
-        <fieldset>
-          <legend>土台</legend>
-          <div class="row">
-            <label>
-              比率
-              <select id="ratio">
-                <option value="3:4">3:4</option>
-                <option value="9:16" selected>9:16</option>
-              </select>
+        <fieldset class="accordion" data-collapsed="false">
+          <legend>
+            <button class="accordion-toggle" type="button" aria-expanded="true">
+              <span>その他効果</span>
+              <span class="accordion-icon" aria-hidden="true">-</span>
+            </button>
+          </legend>
+          <div class="accordion-panel">
+            <label class="toggle-line">
+              <input id="shadowEnabled" type="checkbox" />
+              シャドウ
             </label>
-            <label>
-              サイズ
-              <select id="size">
-                <option value="S">S</option>
-                <option value="M" selected>M</option>
-                <option value="L">L</option>
-                <option value="XL">XL</option>
-              </select>
-            </label>
-          </div>
+            <div id="shadowControls" class="effect-controls" hidden>
+              <div class="row">
+                <label>
+                  色
+                  <input id="shadowColor" type="color" value="#000000" />
+                </label>
+                <label>
+                  透明度
+                  <input id="shadowAlpha" type="range" min="0" max="100" value="35" />
+                  <span class="alpha-readout"><span>0%</span><span id="shadowAlphaValue">35%</span><span>100%</span></span>
+                </label>
+              </div>
+              <label>
+                ぼかし
+                <input id="shadowBlur" type="range" min="0" max="60" value="12" />
+                <span class="alpha-readout"><span>0px</span><span id="shadowBlurValue">12px</span><span>60px</span></span>
+              </label>
+              <div class="row">
+                <label>
+                  距離
+                  <input id="shadowDistance" type="range" min="0" max="80" value="8" />
+                  <span class="alpha-readout"><span>0px</span><span id="shadowDistanceValue">8px</span><span>80px</span></span>
+                </label>
+                <label>
+                  角度
+                  <input id="shadowAngle" type="range" min="0" max="360" value="135" />
+                  <span class="alpha-readout"><span>0°</span><span id="shadowAngleValue">135°</span><span>360°</span></span>
+                </label>
+              </div>
+            </div>
 
-          <label>
-            背景色
-            <input id="backgroundColor" type="color" value="#f8fafc" />
-          </label>
-          <label>
-            背景の透明度
-            <input id="backgroundAlpha" type="range" min="0" max="100" value="100" />
-            <span class="alpha-readout"><span>透明</span><span id="alphaValue">100%</span><span>不透明</span></span>
-          </label>
-          <label>
-            エンブレム余白
-            <input id="padding" type="range" min="8" max="36" value="18" />
-            <span class="alpha-readout"><span>小</span><span id="paddingValue">18%</span><span>大</span></span>
-          </label>
+            <label class="toggle-line">
+              <input id="outlineEnabled" type="checkbox" />
+              フチ線
+            </label>
+            <div id="outlineControls" class="effect-controls" hidden>
+              <div class="row">
+                <label>
+                  色
+                  <input id="outlineColor" type="color" value="#ffffff" />
+                </label>
+                <label>
+                  透明度
+                  <input id="outlineAlpha" type="range" min="0" max="100" value="100" />
+                  <span class="alpha-readout"><span>0%</span><span id="outlineAlphaValue">100%</span><span>100%</span></span>
+                </label>
+              </div>
+              <label>
+                太さ
+                <input id="outlineWidth" type="range" min="1" max="60" value="12" />
+                <span class="alpha-readout"><span>1px</span><span id="outlineWidthValue">12px</span><span>60px</span></span>
+              </label>
+            </div>
+          </div>
         </fieldset>
 
         <div class="actions">
@@ -525,10 +678,10 @@
 
     <script>
       const sizeMap = {
-        S: { "3:4": [768, 1024], "9:16": [720, 1280] },
-        M: { "3:4": [1200, 1600], "9:16": [1080, 1920] },
-        L: { "3:4": [1800, 2400], "9:16": [1440, 2560] },
-        XL: { "3:4": [2400, 3200], "9:16": [2160, 3840] },
+        S: { "1:1": [1024, 1024], "3:4": [768, 1024], "9:16": [720, 1280] },
+        M: { "1:1": [1600, 1600], "3:4": [1200, 1600], "9:16": [1080, 1920] },
+        L: { "1:1": [2400, 2400], "3:4": [1800, 2400], "9:16": [1440, 2560] },
+        XL: { "1:1": [3200, 3200], "3:4": [2400, 3200], "9:16": [2160, 3840] },
       };
 
       const defaults = {
@@ -542,7 +695,20 @@
         backgroundColor: "#f8fafc",
         backgroundAlpha: 100,
         padding: 18,
+        shadowEnabled: false,
+        shadowColor: "#000000",
+        shadowAlpha: 35,
+        shadowBlur: 12,
+        shadowDistance: 8,
+        shadowAngle: 135,
+        outlineEnabled: false,
+        outlineColor: "#ffffff",
+        outlineAlpha: 100,
+        outlineWidth: 12,
       };
+
+      const shapeNames = ["path", "polygon", "rect", "circle", "ellipse", "line", "polyline"];
+      const mobileAccordionQuery = window.matchMedia("(max-width: 520px)");
 
       const controls = {
         preset: document.querySelector("#preset"),
@@ -560,6 +726,24 @@
         alphaValue: document.querySelector("#alphaValue"),
         padding: document.querySelector("#padding"),
         paddingValue: document.querySelector("#paddingValue"),
+        shadowEnabled: document.querySelector("#shadowEnabled"),
+        shadowControls: document.querySelector("#shadowControls"),
+        shadowColor: document.querySelector("#shadowColor"),
+        shadowAlpha: document.querySelector("#shadowAlpha"),
+        shadowAlphaValue: document.querySelector("#shadowAlphaValue"),
+        shadowBlur: document.querySelector("#shadowBlur"),
+        shadowBlurValue: document.querySelector("#shadowBlurValue"),
+        shadowDistance: document.querySelector("#shadowDistance"),
+        shadowDistanceValue: document.querySelector("#shadowDistanceValue"),
+        shadowAngle: document.querySelector("#shadowAngle"),
+        shadowAngleValue: document.querySelector("#shadowAngleValue"),
+        outlineEnabled: document.querySelector("#outlineEnabled"),
+        outlineControls: document.querySelector("#outlineControls"),
+        outlineColor: document.querySelector("#outlineColor"),
+        outlineAlpha: document.querySelector("#outlineAlpha"),
+        outlineAlphaValue: document.querySelector("#outlineAlphaValue"),
+        outlineWidth: document.querySelector("#outlineWidth"),
+        outlineWidthValue: document.querySelector("#outlineWidthValue"),
         reset: document.querySelector("#reset"),
         download: document.querySelector("#download"),
         downloadSvg: document.querySelector("#downloadSvg"),
@@ -587,6 +771,7 @@
           }
           baseSvg = await response.text();
           bindEvents();
+          setupAccordions();
           render();
         } catch (error) {
           status.textContent = "base.svgを読み込めませんでした。ローカルサーバーから開いてください。";
@@ -630,6 +815,16 @@
           controls.backgroundColor.value = defaults.backgroundColor;
           controls.backgroundAlpha.value = defaults.backgroundAlpha;
           controls.padding.value = defaults.padding;
+          controls.shadowEnabled.checked = defaults.shadowEnabled;
+          controls.shadowColor.value = defaults.shadowColor;
+          controls.shadowAlpha.value = defaults.shadowAlpha;
+          controls.shadowBlur.value = defaults.shadowBlur;
+          controls.shadowDistance.value = defaults.shadowDistance;
+          controls.shadowAngle.value = defaults.shadowAngle;
+          controls.outlineEnabled.checked = defaults.outlineEnabled;
+          controls.outlineColor.value = defaults.outlineColor;
+          controls.outlineAlpha.value = defaults.outlineAlpha;
+          controls.outlineWidth.value = defaults.outlineWidth;
           controls.preset.value = defaults.solidColor;
           render();
         });
@@ -646,6 +841,37 @@
         });
       }
 
+      function setupAccordions() {
+        document.querySelectorAll(".accordion").forEach((accordion) => {
+          const button = accordion.querySelector(".accordion-toggle");
+          button.addEventListener("click", () => {
+            const collapsed = accordion.dataset.collapsed === "true";
+            accordion.dataset.collapsed = String(!collapsed);
+            syncAccordionButton(accordion);
+          });
+          syncAccordionButton(accordion);
+        });
+
+        const syncAllAccordions = () => {
+          document.querySelectorAll(".accordion").forEach(syncAccordionButton);
+        };
+
+        if (mobileAccordionQuery.addEventListener) {
+          mobileAccordionQuery.addEventListener("change", syncAllAccordions);
+        } else {
+          mobileAccordionQuery.addListener(syncAllAccordions);
+        }
+      }
+
+      function syncAccordionButton(accordion) {
+        const collapsed = accordion.dataset.collapsed === "true";
+        const button = accordion.querySelector(".accordion-toggle");
+        const icon = accordion.querySelector(".accordion-icon");
+
+        button.setAttribute("aria-expanded", String(!collapsed || !mobileAccordionQuery.matches));
+        icon.textContent = collapsed ? "+" : "-";
+      }
+
       function getState() {
         return {
           mode: document.querySelector('input[name="colorMode"]:checked').value,
@@ -658,6 +884,16 @@
           backgroundColor: controls.backgroundColor.value,
           backgroundAlpha: Number(controls.backgroundAlpha.value) / 100,
           padding: Number(controls.padding.value),
+          shadowEnabled: controls.shadowEnabled.checked,
+          shadowColor: controls.shadowColor.value,
+          shadowAlpha: Number(controls.shadowAlpha.value) / 100,
+          shadowBlur: Number(controls.shadowBlur.value),
+          shadowDistance: Number(controls.shadowDistance.value),
+          shadowAngle: Number(controls.shadowAngle.value),
+          outlineEnabled: controls.outlineEnabled.checked,
+          outlineColor: controls.outlineColor.value,
+          outlineAlpha: Number(controls.outlineAlpha.value) / 100,
+          outlineWidth: Number(controls.outlineWidth.value),
         };
       }
 
@@ -672,10 +908,18 @@
         controls.angleValue.textContent = `${state.gradientAngle}°`;
         controls.alphaValue.textContent = `${Math.round(state.backgroundAlpha * 100)}%`;
         controls.paddingValue.textContent = `${state.padding}%`;
+        controls.shadowControls.hidden = !state.shadowEnabled;
+        controls.shadowAlphaValue.textContent = `${Math.round(state.shadowAlpha * 100)}%`;
+        controls.shadowBlurValue.textContent = `${state.shadowBlur}px`;
+        controls.shadowDistanceValue.textContent = `${state.shadowDistance}px`;
+        controls.shadowAngleValue.textContent = `${state.shadowAngle}°`;
+        controls.outlineControls.hidden = !state.outlineEnabled;
+        controls.outlineAlphaValue.textContent = `${Math.round(state.outlineAlpha * 100)}%`;
+        controls.outlineWidthValue.textContent = `${state.outlineWidth}px`;
         dimensions.textContent = `${width} x ${height}px`;
 
         frame.style.setProperty("--preview-ratio", `${ratioParts[0]} / ${ratioParts[1]}`);
-        frame.style.setProperty("--preview-width", state.ratio === "9:16" ? "430px" : "560px");
+        frame.style.setProperty("--preview-width", getPreviewWidth(state.ratio));
         frame.style.background = previewBackground(state.backgroundColor, state.backgroundAlpha);
         preview.style.width = `${100 - state.padding * 2}%`;
 
@@ -703,13 +947,19 @@
           .map(Number);
 
         const style = doc.createElementNS("http://www.w3.org/2000/svg", "style");
-        style.textContent = "path,polygon,rect,circle,ellipse,line,polyline{fill:var(--emblem-fill);stroke:var(--emblem-stroke,none)}";
+        const fillSelector = shapeNames.map((name) => `.emblem-fill ${name}`).join(",");
+        const outlineSelector = shapeNames.map((name) => `.emblem-outline ${name}`).join(",");
+        style.textContent = `
+          ${fillSelector}{fill:var(--emblem-fill);stroke:none}
+          ${outlineSelector}{fill:none;stroke:var(--outline-color);stroke-opacity:var(--outline-opacity);stroke-width:var(--outline-width);stroke-linejoin:round;stroke-linecap:round}
+        `;
         svg.insertBefore(style, svg.firstChild);
+        const defs = doc.createElementNS("http://www.w3.org/2000/svg", "defs");
+        svg.insertBefore(defs, style.nextSibling);
 
         if (state.mode === "solid") {
           svg.style.setProperty("--emblem-fill", state.solidColor);
         } else {
-          const defs = doc.createElementNS("http://www.w3.org/2000/svg", "defs");
           const gradient =
             state.mode === "linear"
               ? doc.createElementNS("http://www.w3.org/2000/svg", "linearGradient")
@@ -739,11 +989,78 @@
 
           gradient.append(start, end);
           defs.append(gradient);
-          svg.insertBefore(defs, svg.firstChild);
           svg.style.setProperty("--emblem-fill", "url(#emblemGradient)");
         }
 
+        const effectScale = getEffectScale(state, { viewX, viewY, viewWidth, viewHeight });
+        const outlineWidth = round(state.outlineWidth / effectScale);
+        svg.style.setProperty("--outline-color", state.outlineColor);
+        svg.style.setProperty("--outline-opacity", state.outlineAlpha);
+        svg.style.setProperty("--outline-width", outlineWidth);
+
+        const graphic = doc.createElementNS("http://www.w3.org/2000/svg", "g");
+        graphic.setAttribute("class", "emblem-fill");
+        Array.from(svg.childNodes)
+          .filter((node) => node !== style && node !== defs)
+          .forEach((node) => graphic.appendChild(node));
+
+        const effectsGroup = doc.createElementNS("http://www.w3.org/2000/svg", "g");
+        if (state.shadowEnabled) {
+          const shadow = getShadowOffset(state);
+          const filter = doc.createElementNS("http://www.w3.org/2000/svg", "filter");
+          const blur = state.shadowBlur / effectScale;
+          const dx = shadow.x / effectScale;
+          const dy = shadow.y / effectScale;
+          const margin = Math.max(Math.abs(dx), Math.abs(dy)) + blur * 4 + outlineWidth * 2;
+          const dropShadow = doc.createElementNS("http://www.w3.org/2000/svg", "feDropShadow");
+
+          filter.setAttribute("id", "emblemShadow");
+          filter.setAttribute("filterUnits", "userSpaceOnUse");
+          filter.setAttribute("x", round(viewX - margin));
+          filter.setAttribute("y", round(viewY - margin));
+          filter.setAttribute("width", round(viewWidth + margin * 2));
+          filter.setAttribute("height", round(viewHeight + margin * 2));
+          dropShadow.setAttribute("dx", round(dx));
+          dropShadow.setAttribute("dy", round(dy));
+          dropShadow.setAttribute("stdDeviation", round(blur));
+          dropShadow.setAttribute("flood-color", state.shadowColor);
+          dropShadow.setAttribute("flood-opacity", state.shadowAlpha);
+          filter.append(dropShadow);
+          defs.append(filter);
+          effectsGroup.setAttribute("filter", "url(#emblemShadow)");
+        }
+
+        if (state.outlineEnabled) {
+          const outline = graphic.cloneNode(true);
+          outline.setAttribute("class", "emblem-outline");
+          effectsGroup.append(outline);
+        }
+        effectsGroup.append(graphic);
+        svg.append(effectsGroup);
+
         return new XMLSerializer().serializeToString(svg);
+      }
+
+      function getPreviewWidth(ratio) {
+        if (ratio === "9:16") return "430px";
+        if (ratio === "1:1") return "500px";
+        return "560px";
+      }
+
+      function getEffectScale(state, box) {
+        const [width, height] = sizeMap[state.size][state.ratio];
+        const paddingPixels = (Math.min(width, height) * state.padding) / 100;
+        const drawAreaWidth = width - paddingPixels * 2;
+        const drawAreaHeight = height - paddingPixels * 2;
+        return Math.min(drawAreaWidth / box.viewWidth, drawAreaHeight / box.viewHeight);
+      }
+
+      function getShadowOffset(state) {
+        const radians = ((state.shadowAngle - 90) * Math.PI) / 180;
+        return {
+          x: Math.cos(radians) * state.shadowDistance,
+          y: Math.sin(radians) * state.shadowDistance,
+        };
       }
 
       function angleToPoints(angle, box) {
@@ -848,7 +1165,7 @@
 
       async function buildExportCanvas(state) {
         const [width, height] = sizeMap[state.size][state.ratio];
-        const svgText = buildColoredSvg(state);
+        const svgText = buildExportSvg(state);
         const svgUrl = URL.createObjectURL(new Blob([svgText], { type: "image/svg+xml;charset=utf-8" }));
 
         try {
@@ -858,21 +1175,7 @@
           canvas.height = height;
           const ctx = canvas.getContext("2d");
 
-          if (state.backgroundAlpha > 0) {
-            ctx.fillStyle = rgba(state.backgroundColor, state.backgroundAlpha);
-            ctx.fillRect(0, 0, width, height);
-          }
-
-          const paddingPixels = (Math.min(width, height) * state.padding) / 100;
-          const drawAreaWidth = width - paddingPixels * 2;
-          const drawAreaHeight = height - paddingPixels * 2;
-          const scale = Math.min(drawAreaWidth / image.naturalWidth, drawAreaHeight / image.naturalHeight);
-          const drawWidth = image.naturalWidth * scale;
-          const drawHeight = image.naturalHeight * scale;
-          const x = (width - drawWidth) / 2;
-          const y = (height - drawHeight) / 2;
-
-          ctx.drawImage(image, x, y, drawWidth, drawHeight);
+          ctx.drawImage(image, 0, 0, width, height);
           return canvas;
         } finally {
           URL.revokeObjectURL(svgUrl);
