@@ -460,8 +460,8 @@
             <label>
               比率
               <select id="ratio">
-                <option value="4:3">4:3</option>
-                <option value="16:9" selected>16:9</option>
+                <option value="3:4">3:4</option>
+                <option value="9:16" selected>9:16</option>
               </select>
             </label>
             <label>
@@ -524,10 +524,10 @@
 
     <script>
       const sizeMap = {
-        S: { "4:3": [1024, 768], "16:9": [1280, 720] },
-        M: { "4:3": [1600, 1200], "16:9": [1920, 1080] },
-        L: { "4:3": [2400, 1800], "16:9": [2560, 1440] },
-        XL: { "4:3": [3200, 2400], "16:9": [3840, 2160] },
+        S: { "3:4": [768, 1024], "9:16": [720, 1280] },
+        M: { "3:4": [1200, 1600], "9:16": [1080, 1920] },
+        L: { "3:4": [1800, 2400], "9:16": [1440, 2560] },
+        XL: { "3:4": [2400, 3200], "9:16": [2160, 3840] },
       };
 
       const defaults = {
@@ -536,7 +536,7 @@
         gradientStart: "#0f766e",
         gradientEnd: "#f59e0b",
         gradientAngle: 35,
-        ratio: "16:9",
+        ratio: "9:16",
         size: "M",
         backgroundColor: "#f8fafc",
         backgroundAlpha: 100,
@@ -671,7 +671,7 @@
         dimensions.textContent = `${width} x ${height}px`;
 
         frame.style.setProperty("--preview-ratio", `${ratioParts[0]} / ${ratioParts[1]}`);
-        frame.style.setProperty("--preview-width", state.ratio === "16:9" ? "980px" : "760px");
+        frame.style.setProperty("--preview-width", state.ratio === "9:16" ? "430px" : "560px");
         frame.style.background = previewBackground(state.backgroundColor, state.backgroundAlpha);
         preview.style.width = `${100 - state.padding * 2}%`;
 
