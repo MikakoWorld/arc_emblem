@@ -385,8 +385,20 @@
       }
 
       @media (max-width: 520px) {
+        body {
+          background:
+            linear-gradient(rgb(7 19 33 / 0.8), rgb(7 19 33 / 0.96)),
+            url("assets/img/about-academy.JPG") center 118px / 210vw auto no-repeat,
+            var(--page);
+          background-attachment: scroll;
+        }
+
         .shell {
           width: min(100% - 24px, 1120px);
+        }
+
+        .hero {
+          padding-top: 26px;
         }
 
         .plot-grid {
