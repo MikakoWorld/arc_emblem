@@ -170,6 +170,14 @@
         accent-color: var(--accent);
       }
 
+      input[type="file"] {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #ffffff;
+      }
+
       select {
         width: 100%;
         min-height: 42px;
@@ -219,6 +227,10 @@
         box-shadow: 0 1px 2px rgb(16 24 40 / 0.12);
       }
 
+      .segmented.two {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
       .swatch-line {
         display: grid;
         grid-template-columns: 46px 1fr;
@@ -234,14 +246,31 @@
         font-weight: 600;
       }
 
+      .notice {
+        margin: 0;
+        padding: 10px 12px;
+        border: 1px solid #fedf89;
+        border-radius: 8px;
+        color: #7a2e0e;
+        background: #fffaeb;
+        font-size: 0.85rem;
+        font-weight: 700;
+      }
+
       .gradient-controls {
         display: grid;
         gap: 12px;
       }
 
       .gradient-controls[hidden],
-      .effect-controls[hidden] {
+      .effect-controls[hidden],
+      .background-image-controls[hidden] {
         display: none;
+      }
+
+      .background-image-controls {
+        display: grid;
+        gap: 12px;
       }
 
       .toggle-line {
@@ -340,14 +369,45 @@
       }
 
       .preview-frame {
+        position: relative;
         display: grid;
         place-items: center;
+        overflow: hidden;
         width: min(var(--preview-width), 100%);
         aspect-ratio: var(--preview-ratio);
         box-shadow: 0 18px 55px rgb(16 24 40 / 0.22);
       }
 
+      .preview-background-image {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        background-position: center;
+        background-repeat: no-repeat;
+        pointer-events: none;
+      }
+
+      .preview-background-image[hidden] {
+        display: none;
+      }
+
+      .preview-background-color {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+      }
+
+      .preview-foreground-color {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        pointer-events: none;
+      }
+
       #preview {
+        position: relative;
+        z-index: 3;
         display: block;
         width: 72%;
         max-height: 86%;
@@ -470,12 +530,28 @@
           font-size: clamp(1.05rem, 5.2vw, 1.24rem);
         }
 
+        label,
+        .label,
+        select,
+        input[type="file"] {
+          font-size: 1rem;
+        }
+
+        select {
+          min-height: 46px;
+        }
+
+        .segmented span {
+          min-height: 40px;
+          font-size: 1rem;
+        }
+
         .row,
         .actions {
           grid-template-columns: 1fr;
         }
 
-        .segmented {
+        .segmented:not(.two) {
           grid-template-columns: 1fr;
         }
 
@@ -603,7 +679,7 @@
         <fieldset class="accordion" data-collapsed="false">
           <legend>
             <button class="accordion-toggle" type="button" aria-expanded="true">
-              <span>背景色</span>
+              <span>背景色・余白調整</span>
               <span class="accordion-icon" aria-hidden="true">-</span>
             </button>
           </legend>
@@ -628,6 +704,20 @@
               </label>
             </div>
 
+            <div class="label">
+              背景タイプ
+              <div class="segmented two" role="radiogroup" aria-label="背景タイプ">
+                <label>
+                  <input type="radio" name="backgroundMode" value="color" checked />
+                  <span>色</span>
+                </label>
+                <label>
+                  <input type="radio" name="backgroundMode" value="image" />
+                  <span>画像</span>
+                </label>
+              </div>
+            </div>
+            <p id="backgroundImageNotice" class="notice" hidden>画像背景タイプはsvg非推奨です</p>
             <label>
               背景色
               <input id="backgroundColor" type="color" value="#f8fafc" />
@@ -637,6 +727,48 @@
               <input id="backgroundAlpha" type="range" min="0" max="100" value="100" />
               <span class="alpha-readout"><span>透明</span><span id="alphaValue">100%</span><span>不透明</span></span>
             </label>
+            <div id="backgroundImageControls" class="background-image-controls" hidden>
+              <label>
+                背景画像
+                <input id="backgroundImage" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" />
+                <span id="backgroundImageName" class="alpha-readout">画像が選択されていません</span>
+              </label>
+              <div class="row">
+                <div class="label">
+                  配置
+                  <div class="segmented" role="radiogroup" aria-label="背景画像の配置">
+                    <label>
+                      <input type="radio" name="backgroundImageFit" value="cover" checked />
+                      <span>切り抜き</span>
+                    </label>
+                    <label>
+                      <input type="radio" name="backgroundImageFit" value="contain" />
+                      <span>収める</span>
+                    </label>
+                    <label>
+                      <input type="radio" name="backgroundImageFit" value="stretch" />
+                      <span>全面</span>
+                    </label>
+                  </div>
+                </div>
+                <label>
+                  画像の透明度
+                  <input id="backgroundImageAlpha" type="range" min="0" max="100" value="100" />
+                  <span class="alpha-readout"><span>0%</span><span id="backgroundImageAlphaValue">100%</span><span>100%</span></span>
+                </label>
+              </div>
+              <div class="row">
+                <label>
+                  前景色
+                  <input id="foregroundColor" type="color" value="#ffffff" />
+                </label>
+                <label>
+                  前景色の透明度
+                  <input id="foregroundAlpha" type="range" min="0" max="100" value="0" />
+                  <span class="alpha-readout"><span>透明</span><span id="foregroundAlphaValue">0%</span><span>不透明</span></span>
+                </label>
+              </div>
+            </div>
             <label>
               エンブレム余白
               <input id="padding" type="range" min="8" max="36" value="18" />
@@ -673,6 +805,11 @@
                 ぼかし
                 <input id="shadowBlur" type="range" min="0" max="60" value="12" />
                 <span class="alpha-readout"><span>0px</span><span id="shadowBlurValue">12px</span><span>60px</span></span>
+              </label>
+              <label>
+                範囲
+                <input id="shadowSpread" type="range" min="0" max="80" value="0" />
+                <span class="alpha-readout"><span>0px</span><span id="shadowSpreadValue">0px</span><span>80px</span></span>
               </label>
               <div class="row">
                 <label>
@@ -728,6 +865,9 @@
         </div>
         <div class="canvas-shell">
           <div id="frame" class="preview-frame">
+            <div id="backgroundImageLayer" class="preview-background-image" hidden></div>
+            <div id="backgroundColorLayer" class="preview-background-color"></div>
+            <div id="foregroundColorLayer" class="preview-foreground-color" hidden></div>
             <img id="preview" alt="エンブレムプレビュー" />
           </div>
         </div>
@@ -766,13 +906,19 @@
         gradientAngle: 35,
         ratio: "9:16",
         size: "M",
+        backgroundMode: "color",
         backgroundColor: "#f8fafc",
         backgroundAlpha: 100,
+        backgroundImageFit: "cover",
+        backgroundImageAlpha: 100,
+        foregroundColor: "#ffffff",
+        foregroundAlpha: 0,
         padding: 18,
         shadowEnabled: false,
         shadowColor: "#000000",
         shadowAlpha: 35,
         shadowBlur: 12,
+        shadowSpread: 0,
         shadowDistance: 8,
         shadowAngle: 135,
         outlineEnabled: false,
@@ -798,6 +944,15 @@
         backgroundColor: document.querySelector("#backgroundColor"),
         backgroundAlpha: document.querySelector("#backgroundAlpha"),
         alphaValue: document.querySelector("#alphaValue"),
+        backgroundImageControls: document.querySelector("#backgroundImageControls"),
+        backgroundImageNotice: document.querySelector("#backgroundImageNotice"),
+        backgroundImage: document.querySelector("#backgroundImage"),
+        backgroundImageName: document.querySelector("#backgroundImageName"),
+        backgroundImageAlpha: document.querySelector("#backgroundImageAlpha"),
+        backgroundImageAlphaValue: document.querySelector("#backgroundImageAlphaValue"),
+        foregroundColor: document.querySelector("#foregroundColor"),
+        foregroundAlpha: document.querySelector("#foregroundAlpha"),
+        foregroundAlphaValue: document.querySelector("#foregroundAlphaValue"),
         padding: document.querySelector("#padding"),
         paddingValue: document.querySelector("#paddingValue"),
         shadowEnabled: document.querySelector("#shadowEnabled"),
@@ -807,6 +962,8 @@
         shadowAlphaValue: document.querySelector("#shadowAlphaValue"),
         shadowBlur: document.querySelector("#shadowBlur"),
         shadowBlurValue: document.querySelector("#shadowBlurValue"),
+        shadowSpread: document.querySelector("#shadowSpread"),
+        shadowSpreadValue: document.querySelector("#shadowSpreadValue"),
         shadowDistance: document.querySelector("#shadowDistance"),
         shadowDistanceValue: document.querySelector("#shadowDistanceValue"),
         shadowAngle: document.querySelector("#shadowAngle"),
@@ -832,12 +989,18 @@
 
       const preview = document.querySelector("#preview");
       const frame = document.querySelector("#frame");
+      const backgroundImageLayer = document.querySelector("#backgroundImageLayer");
+      const backgroundColorLayer = document.querySelector("#backgroundColorLayer");
+      const foregroundColorLayer = document.querySelector("#foregroundColorLayer");
       const status = document.querySelector("#status");
       const dimensions = document.querySelector("#dimensions");
       const stageWrap = document.querySelector(".stage-wrap");
 
       let baseSvg = "";
       let currentObjectUrl = "";
+      let backgroundImageDataUrl = "";
+      let backgroundImageFileName = "";
+      let previousBackgroundMode = defaults.backgroundMode;
 
       init();
 
@@ -871,6 +1034,14 @@
           radio.addEventListener("change", render);
         });
 
+        document.querySelectorAll('input[name="backgroundMode"]').forEach((radio) => {
+          radio.addEventListener("change", handleBackgroundModeChange);
+        });
+
+        document.querySelectorAll('input[name="backgroundImageFit"]').forEach((radio) => {
+          radio.addEventListener("change", render);
+        });
+
         controls.preset.addEventListener("change", () => {
           if (controls.preset.value !== "custom") {
             controls.solidColor.value = controls.preset.value;
@@ -882,6 +1053,8 @@
           controls.preset.value = "custom";
         });
 
+        controls.backgroundImage.addEventListener("change", handleBackgroundImageChange);
+
         controls.reset.addEventListener("click", () => {
           document.querySelector(`input[name="colorMode"][value="${defaults.mode}"]`).checked = true;
           controls.solidColor.value = defaults.solidColor;
@@ -890,13 +1063,23 @@
           controls.gradientAngle.value = defaults.gradientAngle;
           controls.ratio.value = defaults.ratio;
           controls.size.value = defaults.size;
+          document.querySelector(`input[name="backgroundMode"][value="${defaults.backgroundMode}"]`).checked = true;
           controls.backgroundColor.value = defaults.backgroundColor;
           controls.backgroundAlpha.value = defaults.backgroundAlpha;
+          controls.backgroundImage.value = "";
+          document.querySelector(`input[name="backgroundImageFit"][value="${defaults.backgroundImageFit}"]`).checked = true;
+          controls.backgroundImageAlpha.value = defaults.backgroundImageAlpha;
+          controls.foregroundColor.value = defaults.foregroundColor;
+          controls.foregroundAlpha.value = defaults.foregroundAlpha;
+          backgroundImageDataUrl = "";
+          backgroundImageFileName = "";
+          previousBackgroundMode = defaults.backgroundMode;
           controls.padding.value = defaults.padding;
           controls.shadowEnabled.checked = defaults.shadowEnabled;
           controls.shadowColor.value = defaults.shadowColor;
           controls.shadowAlpha.value = defaults.shadowAlpha;
           controls.shadowBlur.value = defaults.shadowBlur;
+          controls.shadowSpread.value = defaults.shadowSpread;
           controls.shadowDistance.value = defaults.shadowDistance;
           controls.shadowAngle.value = defaults.shadowAngle;
           controls.outlineEnabled.checked = defaults.outlineEnabled;
@@ -920,6 +1103,52 @@
         controls.scrollJump.addEventListener("click", handleScrollJump);
         window.addEventListener("scroll", updateScrollJump, { passive: true });
         window.addEventListener("resize", updateScrollJump);
+      }
+
+      function handleBackgroundImageChange() {
+        const file = controls.backgroundImage.files[0];
+        if (!file) {
+          backgroundImageDataUrl = "";
+          backgroundImageFileName = "";
+          render();
+          return;
+        }
+
+        if (!file.type.startsWith("image/")) {
+          alert("画像ファイルを選択してください。");
+          controls.backgroundImage.value = "";
+          backgroundImageDataUrl = "";
+          backgroundImageFileName = "";
+          render();
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = () => {
+          backgroundImageDataUrl = String(reader.result);
+          backgroundImageFileName = file.name;
+          document.querySelector('input[name="backgroundMode"][value="image"]').checked = true;
+          controls.foregroundAlpha.value = 0;
+          previousBackgroundMode = "image";
+          render();
+        };
+        reader.onerror = () => {
+          alert("背景画像を読み込めませんでした。");
+          controls.backgroundImage.value = "";
+          backgroundImageDataUrl = "";
+          backgroundImageFileName = "";
+          render();
+        };
+        reader.readAsDataURL(file);
+      }
+
+      function handleBackgroundModeChange() {
+        const nextMode = document.querySelector('input[name="backgroundMode"]:checked').value;
+        if (nextMode === "image" && previousBackgroundMode !== "image") {
+          controls.foregroundAlpha.value = 0;
+        }
+        previousBackgroundMode = nextMode;
+        render();
       }
 
       function handleScrollJump() {
@@ -997,13 +1226,21 @@
           gradientAngle: Number(controls.gradientAngle.value),
           ratio: controls.ratio.value,
           size: controls.size.value,
+          backgroundMode: document.querySelector('input[name="backgroundMode"]:checked').value,
           backgroundColor: controls.backgroundColor.value,
           backgroundAlpha: Number(controls.backgroundAlpha.value) / 100,
+          backgroundImage: backgroundImageDataUrl,
+          backgroundImageName: backgroundImageFileName,
+          backgroundImageFit: document.querySelector('input[name="backgroundImageFit"]:checked').value,
+          backgroundImageAlpha: Number(controls.backgroundImageAlpha.value) / 100,
+          foregroundColor: controls.foregroundColor.value,
+          foregroundAlpha: Number(controls.foregroundAlpha.value) / 100,
           padding: Number(controls.padding.value),
           shadowEnabled: controls.shadowEnabled.checked,
           shadowColor: controls.shadowColor.value,
           shadowAlpha: Number(controls.shadowAlpha.value) / 100,
           shadowBlur: Number(controls.shadowBlur.value),
+          shadowSpread: Number(controls.shadowSpread.value),
           shadowDistance: Number(controls.shadowDistance.value),
           shadowAngle: Number(controls.shadowAngle.value),
           outlineEnabled: controls.outlineEnabled.checked,
@@ -1023,10 +1260,16 @@
         controls.angleControl.hidden = state.mode !== "linear";
         controls.angleValue.textContent = `${state.gradientAngle}°`;
         controls.alphaValue.textContent = `${Math.round(state.backgroundAlpha * 100)}%`;
+        controls.backgroundImageControls.hidden = state.backgroundMode !== "image";
+        controls.backgroundImageNotice.hidden = state.backgroundMode !== "image";
+        controls.backgroundImageName.textContent = state.backgroundImageName || "画像が選択されていません";
+        controls.backgroundImageAlphaValue.textContent = `${Math.round(state.backgroundImageAlpha * 100)}%`;
+        controls.foregroundAlphaValue.textContent = `${Math.round(state.foregroundAlpha * 100)}%`;
         controls.paddingValue.textContent = `${state.padding}%`;
         controls.shadowControls.hidden = !state.shadowEnabled;
         controls.shadowAlphaValue.textContent = `${Math.round(state.shadowAlpha * 100)}%`;
         controls.shadowBlurValue.textContent = `${state.shadowBlur}px`;
+        controls.shadowSpreadValue.textContent = `${state.shadowSpread}px`;
         controls.shadowDistanceValue.textContent = `${state.shadowDistance}px`;
         controls.shadowAngleValue.textContent = `${state.shadowAngle}°`;
         controls.outlineControls.hidden = !state.outlineEnabled;
@@ -1036,7 +1279,10 @@
 
         frame.style.setProperty("--preview-ratio", `${ratioParts[0]} / ${ratioParts[1]}`);
         frame.style.setProperty("--preview-width", getPreviewWidth(state.ratio));
-        frame.style.background = previewBackground(state.backgroundColor, state.backgroundAlpha);
+        frame.style.background = checkerBackground();
+        backgroundColorLayer.style.background = rgba(state.backgroundColor, state.backgroundAlpha);
+        updatePreviewBackgroundImage(state);
+        updatePreviewForegroundColor(state);
         preview.style.width = `${100 - state.padding * 2}%`;
 
         setPreviewSource(buildColoredSvg(state));
@@ -1111,6 +1357,8 @@
 
         const effectScale = getEffectScale(state, { viewX, viewY, viewWidth, viewHeight });
         const outlineWidth = round(state.outlineWidth / effectScale);
+        const outlineMargin = state.outlineEnabled ? outlineWidth * 2 : 0;
+        let effectMargin = outlineMargin;
         svg.style.setProperty("--outline-color", state.outlineColor);
         svg.style.setProperty("--outline-opacity", state.outlineAlpha);
         svg.style.setProperty("--outline-width", outlineWidth);
@@ -1126,10 +1374,18 @@
           const shadow = getShadowOffset(state);
           const filter = doc.createElementNS("http://www.w3.org/2000/svg", "filter");
           const blur = state.shadowBlur / effectScale;
+          const spread = state.shadowSpread / effectScale;
           const dx = shadow.x / effectScale;
           const dy = shadow.y / effectScale;
-          const margin = Math.max(Math.abs(dx), Math.abs(dy)) + blur * 4 + outlineWidth * 2;
-          const dropShadow = doc.createElementNS("http://www.w3.org/2000/svg", "feDropShadow");
+          const margin = Math.max(Math.abs(dx), Math.abs(dy)) + spread + blur * 4 + outlineMargin;
+          const morphology = doc.createElementNS("http://www.w3.org/2000/svg", "feMorphology");
+          const gaussianBlur = doc.createElementNS("http://www.w3.org/2000/svg", "feGaussianBlur");
+          const offset = doc.createElementNS("http://www.w3.org/2000/svg", "feOffset");
+          const flood = doc.createElementNS("http://www.w3.org/2000/svg", "feFlood");
+          const composite = doc.createElementNS("http://www.w3.org/2000/svg", "feComposite");
+          const merge = doc.createElementNS("http://www.w3.org/2000/svg", "feMerge");
+          const shadowNode = doc.createElementNS("http://www.w3.org/2000/svg", "feMergeNode");
+          const sourceNode = doc.createElementNS("http://www.w3.org/2000/svg", "feMergeNode");
 
           filter.setAttribute("id", "emblemShadow");
           filter.setAttribute("filterUnits", "userSpaceOnUse");
@@ -1137,14 +1393,31 @@
           filter.setAttribute("y", round(viewY - margin));
           filter.setAttribute("width", round(viewWidth + margin * 2));
           filter.setAttribute("height", round(viewHeight + margin * 2));
-          dropShadow.setAttribute("dx", round(dx));
-          dropShadow.setAttribute("dy", round(dy));
-          dropShadow.setAttribute("stdDeviation", round(blur));
-          dropShadow.setAttribute("flood-color", state.shadowColor);
-          dropShadow.setAttribute("flood-opacity", state.shadowAlpha);
-          filter.append(dropShadow);
+          morphology.setAttribute("in", "SourceAlpha");
+          morphology.setAttribute("operator", "dilate");
+          morphology.setAttribute("radius", round(spread));
+          morphology.setAttribute("result", "shadowSpread");
+          gaussianBlur.setAttribute("in", "shadowSpread");
+          gaussianBlur.setAttribute("stdDeviation", round(blur));
+          gaussianBlur.setAttribute("result", "shadowBlur");
+          offset.setAttribute("in", "shadowBlur");
+          offset.setAttribute("dx", round(dx));
+          offset.setAttribute("dy", round(dy));
+          offset.setAttribute("result", "shadowOffset");
+          flood.setAttribute("flood-color", state.shadowColor);
+          flood.setAttribute("flood-opacity", state.shadowAlpha);
+          flood.setAttribute("result", "shadowColor");
+          composite.setAttribute("in", "shadowColor");
+          composite.setAttribute("in2", "shadowOffset");
+          composite.setAttribute("operator", "in");
+          composite.setAttribute("result", "shadowPaint");
+          shadowNode.setAttribute("in", "shadowPaint");
+          sourceNode.setAttribute("in", "SourceGraphic");
+          merge.append(shadowNode, sourceNode);
+          filter.append(morphology, gaussianBlur, offset, flood, composite, merge);
           defs.append(filter);
           effectsGroup.setAttribute("filter", "url(#emblemShadow)");
+          effectMargin = Math.max(effectMargin, margin);
         }
 
         if (state.outlineEnabled) {
@@ -1154,6 +1427,12 @@
         }
         effectsGroup.append(graphic);
         svg.append(effectsGroup);
+        if (effectMargin > 0) {
+          svg.setAttribute(
+            "viewBox",
+            `${round(viewX - effectMargin)} ${round(viewY - effectMargin)} ${round(viewWidth + effectMargin * 2)} ${round(viewHeight + effectMargin * 2)}`,
+          );
+        }
 
         return new XMLSerializer().serializeToString(svg);
       }
@@ -1162,6 +1441,42 @@
         if (ratio === "9:16") return "430px";
         if (ratio === "1:1") return "500px";
         return "560px";
+      }
+
+      function updatePreviewBackgroundImage(state) {
+        if (state.backgroundMode !== "image" || !state.backgroundImage) {
+          backgroundImageLayer.hidden = true;
+          backgroundImageLayer.style.backgroundImage = "";
+          return;
+        }
+
+        backgroundImageLayer.hidden = false;
+        backgroundImageLayer.style.backgroundImage = `url("${state.backgroundImage}")`;
+        backgroundImageLayer.style.backgroundSize = getCssBackgroundSize(state.backgroundImageFit);
+        backgroundImageLayer.style.opacity = state.backgroundImageAlpha;
+      }
+
+      function updatePreviewForegroundColor(state) {
+        if (state.backgroundMode !== "image" || state.foregroundAlpha <= 0) {
+          foregroundColorLayer.hidden = true;
+          foregroundColorLayer.style.background = "";
+          return;
+        }
+
+        foregroundColorLayer.hidden = false;
+        foregroundColorLayer.style.background = rgba(state.foregroundColor, state.foregroundAlpha);
+      }
+
+      function getCssBackgroundSize(fit) {
+        if (fit === "contain") return "contain";
+        if (fit === "stretch") return "100% 100%";
+        return "cover";
+      }
+
+      function getSvgPreserveAspectRatio(fit) {
+        if (fit === "contain") return "xMidYMid meet";
+        if (fit === "stretch") return "none";
+        return "xMidYMid slice";
       }
 
       function getEffectScale(state, box) {
@@ -1266,10 +1581,7 @@
         const content = Array.from(sourceSvg.childNodes)
           .map((node) => new XMLSerializer().serializeToString(node))
           .join("");
-        const background =
-          state.backgroundAlpha > 0
-            ? `<rect width="100%" height="100%" fill="${state.backgroundColor}" fill-opacity="${state.backgroundAlpha}"/>`
-            : "";
+        const background = buildExportBackground(state, width, height);
 
         return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" style="${escapeAttribute(style)}">
@@ -1278,6 +1590,29 @@
     ${content}
   </g>
 </svg>`;
+      }
+
+      function buildExportBackground(state, width, height) {
+        const layers = [];
+        if (state.backgroundAlpha > 0) {
+          layers.push(
+            `<rect width="100%" height="100%" fill="${state.backgroundColor}" fill-opacity="${state.backgroundAlpha}"/>`,
+          );
+        }
+
+        if (state.backgroundMode === "image" && state.backgroundImage) {
+          layers.push(
+            `<image href="${escapeAttribute(state.backgroundImage)}" width="${width}" height="${height}" preserveAspectRatio="${getSvgPreserveAspectRatio(state.backgroundImageFit)}" opacity="${state.backgroundImageAlpha}"/>`,
+          );
+        }
+
+        if (state.backgroundMode === "image" && state.foregroundAlpha > 0) {
+          layers.push(
+            `<rect width="100%" height="100%" fill="${state.foregroundColor}" fill-opacity="${state.foregroundAlpha}"/>`,
+          );
+        }
+
+        return layers.join("\n  ");
       }
 
       async function buildExportCanvas(state) {
@@ -1320,10 +1655,8 @@
         return `rgb(${r} ${g} ${b} / ${alpha})`;
       }
 
-      function previewBackground(hex, alpha) {
-        const overlay = rgba(hex, alpha);
+      function checkerBackground() {
         return `
-          linear-gradient(${overlay}, ${overlay}),
           linear-gradient(45deg, rgb(88 94 105 / 0.24) 25%, transparent 25%) 0 0 / 18px 18px,
           linear-gradient(-45deg, rgb(88 94 105 / 0.24) 25%, transparent 25%) 0 0 / 18px 18px,
           linear-gradient(45deg, transparent 75%, rgb(88 94 105 / 0.24) 75%) 0 0 / 18px 18px,
