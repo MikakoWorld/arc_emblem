@@ -67,17 +67,32 @@
 
       .brand {
         display: grid;
-        gap: 6px;
+        grid-template-columns: 36px minmax(0, 1fr);
+        gap: 12px;
+        align-items: center;
+      }
+
+      .brand-mark {
+        display: block;
+        width: 36px;
+        height: auto;
       }
 
       h1 {
         margin: 0;
-        font-size: clamp(1.45rem, 1.05rem + 1vw, 2rem);
-        line-height: 1.15;
+        font-size: clamp(1.18rem, 1rem + 0.35vw, 1.38rem);
+        line-height: 1.12;
         letter-spacing: 0;
+        white-space: nowrap;
+      }
+
+      .title-small {
+        margin-left: 0.22em;
+        font-size: 0.64em;
       }
 
       .meta {
+        grid-column: 1 / -1;
         margin: 0;
         color: var(--muted);
         font-size: 0.93rem;
@@ -412,6 +427,10 @@
           #050608;
       }
 
+      .scroll-jump {
+        display: none;
+      }
+
       :focus-visible {
         outline: 3px solid var(--focus);
         outline-offset: 2px;
@@ -438,6 +457,19 @@
           padding: 16px;
         }
 
+        .brand {
+          grid-template-columns: 32px minmax(0, 1fr);
+          gap: 10px;
+        }
+
+        .brand-mark {
+          width: 32px;
+        }
+
+        h1 {
+          font-size: clamp(1.05rem, 5.2vw, 1.24rem);
+        }
+
         .row,
         .actions {
           grid-template-columns: 1fr;
@@ -459,6 +491,42 @@
         .accordion[data-collapsed="true"] .accordion-panel {
           display: none;
         }
+
+        .scroll-jump {
+          position: fixed;
+          right: max(14px, env(safe-area-inset-right));
+          bottom: max(14px, env(safe-area-inset-bottom));
+          z-index: 20;
+          display: inline-flex;
+          gap: 6px;
+          align-items: center;
+          min-height: 42px;
+          padding: 0 14px;
+          border: 1px solid rgb(15 118 110 / 0.3);
+          border-radius: 999px;
+          color: #ffffff;
+          background: rgb(15 118 110 / 0.94);
+          box-shadow: 0 10px 26px rgb(16 24 40 / 0.24);
+          font-size: 0.86rem;
+          font-weight: 800;
+          opacity: 1;
+          transform: translateY(0);
+          transition:
+            opacity 160ms ease,
+            transform 160ms ease;
+        }
+
+        .scroll-jump[hidden] {
+          display: inline-flex;
+          pointer-events: none;
+          opacity: 0;
+          transform: translateY(8px);
+        }
+
+        .scroll-jump-icon {
+          font-size: 1.08rem;
+          line-height: 1;
+        }
       }
     </style>
   </head>
@@ -466,15 +534,16 @@
     <main class="app">
       <aside class="controls" aria-label="カスタマイズ設定">
         <div class="brand">
-          <h1>アイギス・アーク エンブレム</h1>
+          <img class="brand-mark" src="assets/img/only_emblem_black.svg" alt="" />
+          <h1>アイギス・アーク<span class="title-small">エンブレム</span></h1>
           <p class="meta">SVGカラー、背景、書き出しサイズを調整できます。</p>
         </div>
 
-        <fieldset class="accordion" data-collapsed="true">
+        <fieldset class="accordion" data-collapsed="false">
           <legend>
-            <button class="accordion-toggle" type="button" aria-expanded="false">
-              <span>エンブレム</span>
-              <span class="accordion-icon" aria-hidden="true">+</span>
+            <button class="accordion-toggle" type="button" aria-expanded="true">
+              <span>エンブレム色</span>
+              <span class="accordion-icon" aria-hidden="true">-</span>
             </button>
           </legend>
           <div class="accordion-panel">
@@ -531,11 +600,11 @@
           </div>
         </fieldset>
 
-        <fieldset class="accordion" data-collapsed="true">
+        <fieldset class="accordion" data-collapsed="false">
           <legend>
-            <button class="accordion-toggle" type="button" aria-expanded="false">
-              <span>土台</span>
-              <span class="accordion-icon" aria-hidden="true">+</span>
+            <button class="accordion-toggle" type="button" aria-expanded="true">
+              <span>背景色</span>
+              <span class="accordion-icon" aria-hidden="true">-</span>
             </button>
           </legend>
           <div class="accordion-panel">
@@ -576,11 +645,11 @@
           </div>
         </fieldset>
 
-        <fieldset class="accordion" data-collapsed="false">
+        <fieldset class="accordion" data-collapsed="true">
           <legend>
-            <button class="accordion-toggle" type="button" aria-expanded="true">
+            <button class="accordion-toggle" type="button" aria-expanded="false">
               <span>その他効果</span>
-              <span class="accordion-icon" aria-hidden="true">-</span>
+              <span class="accordion-icon" aria-hidden="true">+</span>
             </button>
           </legend>
           <div class="accordion-panel">
@@ -664,6 +733,11 @@
         </div>
       </section>
     </main>
+
+    <button id="scrollJump" class="scroll-jump" type="button" hidden>
+      <span id="scrollJumpIcon" class="scroll-jump-icon" aria-hidden="true">↓</span>
+      <span id="scrollJumpText">プレビュー</span>
+    </button>
 
     <div id="iosSaveModal" class="ios-save-modal" role="dialog" aria-modal="true" aria-labelledby="iosSaveTitle" hidden>
       <div class="ios-save-modal-inner">
@@ -751,12 +825,16 @@
         iosSaveModal: document.querySelector("#iosSaveModal"),
         iosSaveClose: document.querySelector("#iosSaveClose"),
         iosSaveImage: document.querySelector("#iosSaveImage"),
+        scrollJump: document.querySelector("#scrollJump"),
+        scrollJumpIcon: document.querySelector("#scrollJumpIcon"),
+        scrollJumpText: document.querySelector("#scrollJumpText"),
       };
 
       const preview = document.querySelector("#preview");
       const frame = document.querySelector("#frame");
       const status = document.querySelector("#status");
       const dimensions = document.querySelector("#dimensions");
+      const stageWrap = document.querySelector(".stage-wrap");
 
       let baseSvg = "";
       let currentObjectUrl = "";
@@ -839,6 +917,42 @@
         window.addEventListener("keydown", (event) => {
           if (event.key === "Escape") closeIOSSaveModal();
         });
+        controls.scrollJump.addEventListener("click", handleScrollJump);
+        window.addEventListener("scroll", updateScrollJump, { passive: true });
+        window.addEventListener("resize", updateScrollJump);
+      }
+
+      function handleScrollJump() {
+        const target = controls.scrollJump.dataset.target;
+        if (target === "top") {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        } else {
+          stageWrap.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }
+
+      function updateScrollJump() {
+        if (!mobileAccordionQuery.matches) {
+          controls.scrollJump.hidden = true;
+          return;
+        }
+
+        const stageTop = stageWrap.getBoundingClientRect().top;
+        const nearTop = window.scrollY < 80;
+        const previewBelow = stageTop > window.innerHeight * 0.42;
+
+        controls.scrollJump.hidden = false;
+        if (nearTop || previewBelow) {
+          controls.scrollJump.dataset.target = "preview";
+          controls.scrollJump.setAttribute("aria-label", "プレビューまでスクロール");
+          controls.scrollJumpIcon.textContent = "↓";
+          controls.scrollJumpText.textContent = "プレビュー";
+        } else {
+          controls.scrollJump.dataset.target = "top";
+          controls.scrollJump.setAttribute("aria-label", "画面上部へ移動");
+          controls.scrollJumpIcon.textContent = "↑";
+          controls.scrollJumpText.textContent = "上へ";
+        }
       }
 
       function setupAccordions() {
@@ -848,12 +962,14 @@
             const collapsed = accordion.dataset.collapsed === "true";
             accordion.dataset.collapsed = String(!collapsed);
             syncAccordionButton(accordion);
+            updateScrollJump();
           });
           syncAccordionButton(accordion);
         });
 
         const syncAllAccordions = () => {
           document.querySelectorAll(".accordion").forEach(syncAccordionButton);
+          updateScrollJump();
         };
 
         if (mobileAccordionQuery.addEventListener) {
@@ -926,6 +1042,7 @@
         setPreviewSource(buildColoredSvg(state));
         status.textContent = "プレビュー更新済み";
         status.classList.remove("error");
+        requestAnimationFrame(updateScrollJump);
       }
 
       function buildColoredSvg(state) {
