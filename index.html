@@ -7,14 +7,14 @@
     <style>
       :root {
         color-scheme: light;
-        --ink: #18202a;
-        --muted: #667085;
-        --line: #d8dde5;
+        --ink: #132033;
+        --muted: #607089;
+        --line: #cbd7e7;
         --panel: #ffffff;
-        --page: #f4f1ec;
-        --accent: #0f766e;
+        --page: #edf4fb;
+        --accent: #1d4f7a;
         --accent-ink: #ffffff;
-        --focus: #b45309;
+        --focus: #c7983f;
       }
 
       * {
@@ -98,6 +98,54 @@
         font-size: 0.93rem;
       }
 
+      .brand-note {
+        grid-column: 1 / -1;
+        margin: -4px 0 0;
+        color: var(--muted);
+        font-size: 0.93rem;
+      }
+
+      .about-link {
+        grid-column: 1 / -1;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        justify-self: start;
+        color: #1d4f7a;
+        font-size: 0.9rem;
+        font-weight: 800;
+        text-decoration: none;
+        animation: about-link-nudge 2.4s ease-in-out infinite;
+      }
+
+      .about-link:hover {
+        color: #123a5d;
+        text-decoration: underline;
+      }
+
+      @keyframes about-link-nudge {
+        0%,
+        72%,
+        100% {
+          transform: translateX(0);
+        }
+
+        80%,
+        92% {
+          transform: translateX(1px);
+        }
+
+        86% {
+          transform: translateX(0);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .about-link {
+          animation: none;
+        }
+      }
+
       fieldset {
         display: grid;
         gap: 12px;
@@ -105,7 +153,7 @@
         padding: 16px;
         border: 1px solid var(--line);
         border-radius: 8px;
-        background: #fbfcfd;
+        background: #f9fbff;
       }
 
       legend {
@@ -322,7 +370,24 @@
 
       .button.secondary {
         color: #26333f;
-        background: #e5e7eb;
+        background: #e8eef6;
+      }
+
+      .report-link {
+        margin: -6px 0 0;
+        color: var(--muted);
+        font-size: 0.78rem;
+        line-height: 1.5;
+      }
+
+      .report-link a {
+        color: #1d4f7a;
+        font-weight: 800;
+        text-decoration: none;
+      }
+
+      .report-link a:hover {
+        text-decoration: underline;
       }
 
       .stage-wrap {
@@ -613,6 +678,8 @@
           <img class="brand-mark" src="assets/img/only_emblem_black.svg" alt="" />
           <h1>アイギス・アーク<span class="title-small">エンブレム</span></h1>
           <p class="meta">SVGカラー、背景、書き出しサイズを調整できます。</p>
+          <p class="brand-note">好きな色にして遊んじゃおう。</p>
+          <a class="about-link" href="about.html"><span aria-hidden="true">👉</span><span>アイギス・アークってなに？</span></a>
         </div>
 
         <fieldset class="accordion" data-collapsed="false">
@@ -856,6 +923,7 @@
           <button id="iosSave" class="button secondary" type="button">iPhone保存</button>
           <button id="reset" class="button secondary wide" type="button">リセット</button>
         </div>
+        <p class="report-link">不具合報告はサイト製作者 <a href="https://x.com/Mimmy_zeta001" target="_blank" rel="noreferrer">X</a> まで</p>
       </aside>
 
       <section class="stage-wrap" aria-label="プレビュー">
