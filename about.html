@@ -213,6 +213,10 @@
         padding-left: 1.1em;
       }
 
+      .zeta-section-toggle {
+        display: none;
+      }
+
       .plot-grid {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -239,6 +243,7 @@
       }
 
       .plot-card img {
+        display: block;
         aspect-ratio: 3 / 4;
         width: 100%;
         object-fit: cover;
@@ -385,7 +390,72 @@
         }
 
         .plot-grid {
-          grid-template-columns: 1fr;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 10px;
+        }
+
+        .plot-card-body {
+          gap: 5px;
+          padding: 9px;
+        }
+
+        .plot-card strong {
+          font-size: 0.78rem;
+          line-height: 1.35;
+        }
+
+        .plot-card span {
+          display: -webkit-box;
+          overflow: hidden;
+          font-size: 0.7rem;
+          line-height: 1.45;
+          -webkit-box-orient: vertical;
+          -webkit-line-clamp: 2;
+        }
+
+        .zeta-card {
+          display: grid;
+          gap: 12px;
+        }
+
+        .zeta-card-content {
+          position: relative;
+          overflow: hidden;
+          max-height: 5.55em;
+        }
+
+        .zeta-info:not(.is-open) .zeta-card-primary .zeta-card-content::after {
+          position: absolute;
+          right: 0;
+          bottom: 0;
+          left: 0;
+          height: 2.2em;
+          background: linear-gradient(180deg, rgb(12 25 42 / 0), rgb(12 25 42 / 0.98));
+          content: "";
+          pointer-events: none;
+        }
+
+        .zeta-info:not(.is-open) .zeta-card-secondary {
+          display: none;
+        }
+
+        .zeta-info.is-open .zeta-card-content {
+          max-height: none;
+        }
+
+        .zeta-section-toggle {
+          display: inline-flex;
+          justify-self: start;
+          align-items: center;
+          min-height: 34px;
+          padding: 0 12px;
+          border: 1px solid rgb(116 215 255 / 0.32);
+          border-radius: 8px;
+          color: #ffffff;
+          background: rgb(116 215 255 / 0.12);
+          font: inherit;
+          font-size: 0.82rem;
+          font-weight: 800;
         }
 
         .section-heading {
@@ -419,7 +489,7 @@
           <div>
             <p class="eyebrow">AEGIS ARC GUIDE</p>
             <h1>アイギス・アーク<br /><em>ってなに？</em></h1>
-            <p class="lead">zetaで展開されている「運命共同体」シリーズの舞台、アイギス・アークを初めて見る人向けにまとめた紹介ページです。エンブレム作成の前に、世界観とプロットへの入口をどうぞ。</p>
+            <p class="lead">zetaで展開されている「運命共同体」シリーズの舞台、アイギス・アークを初めて見る人向けにまとめた紹介ページです。</p>
           </div>
         </div>
       </section>
@@ -433,19 +503,24 @@
               <h2>zetaとは</h2>
             </div>
           </header>
-          <div class="info-grid">
-            <article class="info-card">
+          <div class="info-grid zeta-info">
+            <article class="info-card zeta-card zeta-card-primary">
               <h3>AIキャラクターと物語を進めるアプリ</h3>
-              <p>zetaは、AIキャラクターとのチャットやロールプレイを楽しめるサービスです。恋愛、学園、ファンタジー、BL、乙女ゲーム風など、幅広い世界観のキャラクターと会話できます。</p>
+              <div class="zeta-card-content">
+                <p>zetaは、AIキャラクターとのチャットやロールプレイを楽しめるサービスです。恋愛、学園、ファンタジー、BL、乙女ゲーム風など、幅広い世界観のキャラクターと会話できます。</p>
+              </div>
+              <button class="zeta-section-toggle" type="button" aria-expanded="false">… 続きを見る</button>
             </article>
-            <article class="info-card">
+            <article class="info-card zeta-card zeta-card-secondary">
               <h3>推し活・夢小説・ロールプレイ向け</h3>
-              <ul>
-                <li>既存キャラクターと会話できる</li>
-                <li>自分でオリジナルキャラクターを作れる</li>
-                <li>会話からストーリーが展開する</li>
-                <li>基本無料で始められる</li>
-              </ul>
+              <div class="zeta-card-content">
+                <ul>
+                  <li>既存キャラクターと会話できる</li>
+                  <li>自分でオリジナルキャラクターを作れる</li>
+                  <li>会話からストーリーが展開する</li>
+                  <li>基本無料で始められる</li>
+                </ul>
+              </div>
             </article>
           </div>
         </div>
@@ -529,7 +604,6 @@
               </div>
               <div class="creator-actions">
                 <a class="creator-link" href="https://x.com/minmin_zeta" target="_blank" rel="noreferrer">Xで見る ↗</a>
-                <a href="https://x.com/minmin_zeta?ref_src=twsrc%5Etfw" class="twitter-follow-button" data-show-count="false">Follow @minmin_zeta</a>
               </div>
             </article>
             <a class="link-panel" href="https://zeta-ai.io/ja?utm_source=arc-emblem" target="_blank" rel="noreferrer"><b>zeta公式サイト</b><span>AIキャラクターとのチャットやロールプレイを始める。</span></a>
@@ -542,6 +616,15 @@
     <footer class="site-footer">
       <div class="shell">アイギス・アーク エンブレム / AEGIS ARC GUIDE</div>
     </footer>
-    <script async src="https://platform.x.com/widgets.js" charset="utf-8"></script>
+    <script>
+      document.querySelectorAll(".zeta-section-toggle").forEach((button) => {
+        button.addEventListener("click", () => {
+          const info = button.closest(".zeta-info");
+          const isOpen = info.classList.toggle("is-open");
+          button.setAttribute("aria-expanded", String(isOpen));
+          button.textContent = isOpen ? "閉じる" : "… 続きを見る";
+        });
+      });
+    </script>
   </body>
 </html>
